@@ -27,12 +27,30 @@ header {
   z-index: 10;
   background: rgba(11,16,32,.96);
   border-bottom: 1px solid var(--line);
-  padding: 18px 18px 14px;
+  padding: 18px;
 }
-h1 { margin: 0 0 8px; font-size: 24px; }
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+h1 {
+  margin: 0 0 8px;
+  font-size: 24px;
+}
+.stats {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 8px;
+}
+.share-note {
+  color: var(--accent);
+  font-size: 13px;
+  margin-top: 6px;
+  min-height: 18px;
+}
 .controls {
   display: grid;
-  grid-template-columns: 1fr 150px 150px 155px 130px;
+  grid-template-columns: minmax(240px, 1fr) 150px 150px 155px 130px;
   gap: 10px;
   margin-top: 12px;
 }
@@ -44,11 +62,17 @@ input, select, button {
   padding: 10px 12px;
   font-size: 14px;
 }
-button { cursor: pointer; }
+button {
+  cursor: pointer;
+  white-space: nowrap;
+}
 button:hover { background: var(--card2); }
-.stats { color: var(--muted); font-size: 14px; margin-top: 8px; }
-.share-note { color: var(--accent); font-size: 13px; margin-top: 6px; min-height: 18px; }
-main { max-width: 1050px; margin: 0 auto; padding: 18px; }
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 18px;
+}
 .date-block { margin-bottom: 18px; }
 .date-title {
   font-size: 20px;
@@ -56,9 +80,11 @@ main { max-width: 1050px; margin: 0 auto; padding: 18px; }
   padding-bottom: 8px;
   border-bottom: 1px solid var(--line);
 }
+
+/* Desktop row layout */
 .game {
   display: grid;
-  grid-template-columns: 34px 95px 1fr 90px 70px;
+  grid-template-columns: 120px 120px 95px minmax(260px, 1fr) 90px 70px;
   gap: 12px;
   align-items: center;
   background: var(--card);
@@ -69,11 +95,33 @@ main { max-width: 1050px; margin: 0 auto; padding: 18px; }
 }
 .game.watching { border-color: var(--accent); }
 .game.important { box-shadow: 0 0 0 2px rgba(255,255,255,.12) inset; }
-.game.watching .match { text-decoration: none; }
-.check { width: 22px; height: 22px; }
-.time { font-weight: 700; }
-.match { font-size: 16px; font-weight: 700; }
-.meta { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+.check-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.check {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+.time {
+  font-weight: 700;
+  white-space: nowrap;
+}
+.match {
+  font-size: 16px;
+  font-weight: 700;
+}
+.meta {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
 .badge {
   background: var(--card2);
   border: 1px solid var(--line);
@@ -81,27 +129,73 @@ main { max-width: 1050px; margin: 0 auto; padding: 18px; }
   border-radius: 999px;
   text-align: center;
   font-size: 13px;
+  white-space: nowrap;
 }
-@media (max-width: 760px) {
-  .controls { grid-template-columns: 1fr; }
-  .game { grid-template-columns: 34px 82px 1fr; }
-  .badge { display: none; }
+
+/* Tablet */
+@media (max-width: 900px) {
+  header { position: static; }
+  .controls {
+    grid-template-columns: 1fr 1fr;
+  }
+  .controls input {
+    grid-column: 1 / -1;
+  }
+  .game {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .time {
+    grid-column: 1 / 2;
+  }
+  .match-info {
+    grid-column: 1 / -1;
+  }
+  .badge {
+    display: inline-block;
+    text-align: left;
+    width: fit-content;
+  }
+}
+
+/* Phone */
+@media (max-width: 560px) {
+  h1 { font-size: 21px; }
+  main { padding: 12px; }
+  header { padding: 14px; }
+  .controls {
+    grid-template-columns: 1fr;
+  }
+  .game {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+  .match-info,
+  .time {
+    grid-column: auto;
+  }
+  .check-wrap {
+    font-size: 14px;
+  }
 }
 </style>
 </head>
 <body>
 <header>
-  <h1>2026 FIFA World Cup Watchlist</h1>
-  <div class="stats" id="stats">0 selected</div>
-  <div class="share-note" id="shareNote"></div>
-  <div class="controls">
-    <input id="search" placeholder="Search team, group, stadium, channel...">
-    <select id="dateFilter"><option value="">All dates</option></select>
-    <select id="groupFilter"><option value="">All groups</option></select>
-    <button id="shareBtn">Copy Share Link</button>
-    <button id="clearBtn">Clear checks</button>
+  <div class="header-inner">
+    <h1>2026 FIFA World Cup Watchlist</h1>
+    <div class="stats" id="stats">0 selected</div>
+    <div class="share-note" id="shareNote"></div>
+    <div class="controls">
+      <input id="search" placeholder="Search team, group, stadium, channel...">
+      <select id="dateFilter"><option value="">All dates</option></select>
+      <select id="groupFilter"><option value="">All groups</option></select>
+      <button id="shareBtn">Copy Share Link</button>
+      <button id="clearBtn">Clear checks</button>
+    </div>
   </div>
 </header>
+
 <main id="app"></main>
 
 <script>
@@ -199,13 +293,13 @@ function render() {
     block.innerHTML = `<h2 class="date-title">${date}</h2>`;
 
     list.forEach(g => {
-      const row = document.createElement("label");
+      const row = document.createElement("div");
       row.className = "game" + (watching.has(g.id) ? " watching" : "") + (important.has(g.id) ? " important" : "");
       row.innerHTML = `
-        <div class="check-wrap"><input class="check watch-check" type="checkbox" ${watching.has(g.id) ? "checked" : ""}> Watch</div>
-        <div class="check-wrap"><input class="check important-check" type="checkbox" ${important.has(g.id) ? "checked" : ""}> Important</div>
+        <label class="check-wrap"><input class="check watch-check" type="checkbox" ${watching.has(g.id) ? "checked" : ""}> Watch</label>
+        <label class="check-wrap"><input class="check important-check" type="checkbox" ${important.has(g.id) ? "checked" : ""}> Important</label>
         <div class="time">${g.time}</div>
-        <div>
+        <div class="match-info">
           <div class="match">${g.match}</div>
           <div class="meta">${g.stadium}</div>
         </div>
@@ -252,6 +346,5 @@ document.getElementById("clearBtn").addEventListener("click", () => {
 
 render();
 </script>
-
 </body>
 </html>
