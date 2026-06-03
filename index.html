@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026 World Cup Watchlist</title>
+<style>
+:root {
+  --bg: #0b1020;
+  --card: #151b2e;
+  --card2: #1d2540;
+  --text: #f5f7fb;
+  --muted: #aab3c5;
+  --accent: #79a7ff;
+  --line: #2a3658;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(180deg, #080c18, #11172a);
+  color: var(--text);
+}
+header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(11,16,32,.96);
+  border-bottom: 1px solid var(--line);
+  padding: 18px 18px 14px;
+}
+h1 { margin: 0 0 8px; font-size: 24px; }
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 150px 150px 130px;
+  gap: 10px;
+  margin-top: 12px;
+}
+input, select, button {
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+button { cursor: pointer; }
+button:hover { background: var(--card2); }
+.stats { color: var(--muted); font-size: 14px; margin-top: 8px; }
+main { max-width: 1050px; margin: 0 auto; padding: 18px; }
+.date-block { margin-bottom: 18px; }
+.date-title {
+  font-size: 20px;
+  margin: 18px 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.game {
+  display: grid;
+  grid-template-columns: 120px 120px 95px 1fr 90px 70px;
+  gap: 12px;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  margin: 8px 0;
+}
+.game.watching { border-color: var(--accent); }
+.game.important { box-shadow: 0 0 0 2px rgba(255,255,255,.12) inset; }
+.game.watching .match { text-decoration: none; }
+.check-wrap { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
+.check { width: 20px; height: 20px; }
+.time { font-weight: 700; }
+.match { font-size: 16px; font-weight: 700; }
+.meta { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.badge {
+  background: var(--card2);
+  border: 1px solid var(--line);
+  padding: 6px 8px;
+  border-radius: 999px;
+  text-align: center;
+  font-size: 13px;
+}
+@media (max-width: 760px) {
+  .controls { grid-template-columns: 1fr; }
+  .game { grid-template-columns: 1fr 1fr 82px; }
+  .badge { display: none; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>2026 FIFA World Cup Group Stage Watch Checklist</h1>
+  <div class="stats" id="stats">0 selected</div>
+  <div class="controls">
+    <input id="search" placeholder="Search team, group, stadium, channel...">
+    <select id="dateFilter"><option value="">All dates</option></select>
+    <select id="groupFilter"><option value="">All groups</option></select>
+    <button id="clearBtn">Clear checks</button>
+  </div>
+</header>
+<main id="app"></main>
+<script>
+const games = [{"id": 1, "date": "June 11", "time": "3:00 PM", "match": "Mexico vs South Africa", "group": "Group A", "stadium": "Mexico City Stadium", "channel": "FOX"}, {"id": 2, "date": "June 11", "time": "10:00 PM", "match": "South Korea vs Czechia", "group": "Group A", "stadium": "Guadalajara Stadium", "channel": "FS1"}, {"id": 3, "date": "June 12", "time": "3:00 PM", "match": "Canada vs Bosnia and Herzegovina", "group": "Group B", "stadium": "Toronto Stadium", "channel": "FOX"}, {"id": 4, "date": "June 12", "time": "9:00 PM", "match": "USA vs Paraguay", "group": "Group D", "stadium": "Los Angeles Stadium", "channel": "FOX"}, {"id": 5, "date": "June 13", "time": "3:00 PM", "match": "Qatar vs Switzerland", "group": "Group B", "stadium": "San Francisco Bay Stadium", "channel": "FOX"}, {"id": 6, "date": "June 13", "time": "6:00 PM", "match": "Brazil vs Morocco", "group": "Group C", "stadium": "New York New Jersey Stadium", "channel": "FS1"}, {"id": 7, "date": "June 13", "time": "9:00 PM", "match": "Haiti vs Scotland", "group": "Group C", "stadium": "Boston Stadium", "channel": "FS1"}, {"id": 8, "date": "June 14", "time": "12:00 AM", "match": "Australia vs Türkiye", "group": "Group D", "stadium": "BC Place Vancouver", "channel": "FOX"}, {"id": 9, "date": "June 14", "time": "1:00 PM", "match": "Germany vs Curaçao", "group": "Group E", "stadium": "Houston Stadium", "channel": "FOX"}, {"id": 10, "date": "June 14", "time": "4:00 PM", "match": "Netherlands vs Japan", "group": "Group F", "stadium": "Dallas Stadium", "channel": "FOX"}, {"id": 11, "date": "June 14", "time": "7:00 PM", "match": "Ivory Coast vs Ecuador", "group": "Group E", "stadium": "Philadelphia Stadium", "channel": "FS1"}, {"id": 12, "date": "June 14", "time": "10:00 PM", "match": "Tunisia vs Sweden", "group": "Group F", "stadium": "Monterrey Stadium", "channel": "FS1"}, {"id": 13, "date": "June 15", "time": "12:00 PM", "match": "Spain vs Cape Verde", "group": "Group H", "stadium": "Atlanta Stadium", "channel": "FOX"}, {"id": 14, "date": "June 15", "time": "3:00 PM", "match": "Belgium vs Egypt", "group": "Group G", "stadium": "Seattle Stadium", "channel": "FOX"}, {"id": 15, "date": "June 15", "time": "6:00 PM", "match": "Saudi Arabia vs Uruguay", "group": "Group H", "stadium": "Miami Stadium", "channel": "FS1"}, {"id": 16, "date": "June 15", "time": "9:00 PM", "match": "Iran vs New Zealand", "group": "Group G", "stadium": "Los Angeles Stadium", "channel": "FS1"}, {"id": 17, "date": "June 16", "time": "3:00 PM", "match": "France vs Senegal", "group": "Group I", "stadium": "New York New Jersey Stadium", "channel": "FOX"}, {"id": 18, "date": "June 16", "time": "6:00 PM", "match": "Iraq vs Norway", "group": "Group I", "stadium": "Boston Stadium", "channel": "FOX"}, {"id": 19, "date": "June 16", "time": "9:00 PM", "match": "Argentina vs Algeria", "group": "Group J", "stadium": "Kansas City Stadium", "channel": "FOX"}, {"id": 20, "date": "June 17", "time": "12:00 AM", "match": "Austria vs Jordan", "group": "Group J", "stadium": "San Francisco Bay Stadium", "channel": "FS1"}, {"id": 21, "date": "June 17", "time": "1:00 PM", "match": "Portugal vs Congo DR", "group": "Group K", "stadium": "Houston Stadium", "channel": "FOX"}, {"id": 22, "date": "June 17", "time": "4:00 PM", "match": "England vs Croatia", "group": "Group L", "stadium": "Dallas Stadium", "channel": "FOX"}, {"id": 23, "date": "June 17", "time": "7:00 PM", "match": "Ghana vs Panama", "group": "Group L", "stadium": "Toronto Stadium", "channel": "FS1"}, {"id": 24, "date": "June 17", "time": "10:00 PM", "match": "Uzbekistan vs Colombia", "group": "Group K", "stadium": "Mexico City Stadium", "channel": "FS1"}, {"id": 25, "date": "June 18", "time": "12:00 PM", "match": "Czechia vs South Africa", "group": "Group A", "stadium": "Atlanta Stadium", "channel": "FOX"}, {"id": 26, "date": "June 18", "time": "3:00 PM", "match": "Switzerland vs Bosnia and Herzegovina", "group": "Group B", "stadium": "Los Angeles Stadium", "channel": "FOX"}, {"id": 27, "date": "June 18", "time": "6:00 PM", "match": "Canada vs Qatar", "group": "Group B", "stadium": "BC Place Vancouver", "channel": "FS1"}, {"id": 28, "date": "June 18", "time": "9:00 PM", "match": "Mexico vs South Korea", "group": "Group A", "stadium": "Guadalajara Stadium", "channel": "FOX"}, {"id": 29, "date": "June 19", "time": "3:00 PM", "match": "USA vs Australia", "group": "Group D", "stadium": "Seattle Stadium", "channel": "FOX"}, {"id": 30, "date": "June 19", "time": "3:00 PM", "match": "Scotland vs Morocco", "group": "Group C", "stadium": "Boston Stadium", "channel": "FOX"}, {"id": 31, "date": "June 19", "time": "9:00 PM", "match": "Brazil vs Haiti", "group": "Group C", "stadium": "Philadelphia Stadium", "channel": "FOX"}, {"id": 32, "date": "June 20", "time": "12:00 AM", "match": "Türkiye vs Paraguay", "group": "Group D", "stadium": "San Francisco Bay Stadium", "channel": "FS1"}, {"id": 33, "date": "June 20", "time": "1:00 PM", "match": "Netherlands vs Sweden", "group": "Group F", "stadium": "Houston Stadium", "channel": "FOX"}, {"id": 34, "date": "June 20", "time": "4:00 PM", "match": "Germany vs Ivory Coast", "group": "Group E", "stadium": "Toronto Stadium", "channel": "FOX"}, {"id": 35, "date": "June 20", "time": "8:00 PM", "match": "Ecuador vs Curaçao", "group": "Group E", "stadium": "Kansas City Stadium", "channel": "FS1"}, {"id": 36, "date": "June 21", "time": "12:00 AM", "match": "Tunisia vs Japan", "group": "Group F", "stadium": "Monterrey Stadium", "channel": "FS1"}, {"id": 37, "date": "June 21", "time": "12:00 PM", "match": "Spain vs Saudi Arabia", "group": "Group H", "stadium": "Atlanta Stadium", "channel": "FOX"}, {"id": 38, "date": "June 21", "time": "3:00 PM", "match": "Belgium vs Iran", "group": "Group G", "stadium": "Los Angeles Stadium", "channel": "FS1"}, {"id": 39, "date": "June 21", "time": "6:00 PM", "match": "Uruguay vs Cape Verde", "group": "Group H", "stadium": "Miami Stadium", "channel": "FS1"}, {"id": 40, "date": "June 21", "time": "9:00 PM", "match": "New Zealand vs Egypt", "group": "Group G", "stadium": "BC Place Vancouver", "channel": "FS1"}, {"id": 41, "date": "June 22", "time": "1:00 PM", "match": "Argentina vs Austria", "group": "Group J", "stadium": "Dallas Stadium", "channel": "FOX"}, {"id": 42, "date": "June 22", "time": "5:00 PM", "match": "France vs Iraq", "group": "Group I", "stadium": "Philadelphia Stadium", "channel": "FOX"}, {"id": 43, "date": "June 22", "time": "8:00 PM", "match": "Norway vs Senegal", "group": "Group I", "stadium": "New York New Jersey Stadium", "channel": "FOX"}, {"id": 44, "date": "June 22", "time": "11:00 PM", "match": "Jordan vs Algeria", "group": "Group J", "stadium": "San Francisco Bay Stadium", "channel": "FS1"}, {"id": 45, "date": "June 23", "time": "1:00 PM", "match": "Portugal vs Uzbekistan", "group": "Group K", "stadium": "Houston Stadium", "channel": "FOX"}, {"id": 46, "date": "June 23", "time": "4:00 PM", "match": "England vs Ghana", "group": "Group L", "stadium": "Boston Stadium", "channel": "FOX"}, {"id": 47, "date": "June 23", "time": "7:00 PM", "match": "Panama vs Croatia", "group": "Group L", "stadium": "Toronto Stadium", "channel": "FOX"}, {"id": 48, "date": "June 23", "time": "10:00 PM", "match": "Colombia vs Congo DR", "group": "Group K", "stadium": "Guadalajara Stadium", "channel": "FS1"}, {"id": 49, "date": "June 24", "time": "3:00 PM", "match": "Switzerland vs Canada", "group": "Group B", "stadium": "BC Place Vancouver", "channel": "FOX"}, {"id": 50, "date": "June 24", "time": "3:00 PM", "match": "Bosnia vs Qatar", "group": "Group B", "stadium": "Seattle Stadium", "channel": "FS1"}, {"id": 51, "date": "June 24", "time": "6:00 PM", "match": "Brazil vs Scotland", "group": "Group C", "stadium": "Miami Stadium", "channel": "FOX"}, {"id": 52, "date": "June 24", "time": "6:00 PM", "match": "Morocco vs Haiti", "group": "Group C", "stadium": "Atlanta Stadium", "channel": "FS1"}, {"id": 53, "date": "June 24", "time": "9:00 PM", "match": "Mexico vs Czechia", "group": "Group A", "stadium": "Mexico City Stadium", "channel": "FOX"}, {"id": 54, "date": "June 24", "time": "9:00 PM", "match": "South Korea vs South Africa", "group": "Group A", "stadium": "Monterrey Stadium", "channel": "FS1"}, {"id": 55, "date": "June 25", "time": "4:00 PM", "match": "Ecuador vs Germany", "group": "Group E", "stadium": "New York New Jersey Stadium", "channel": "FOX"}, {"id": 56, "date": "June 25", "time": "4:00 PM", "match": "Curaçao vs Ivory Coast", "group": "Group E", "stadium": "Philadelphia Stadium", "channel": "FS1"}, {"id": 57, "date": "June 25", "time": "7:00 PM", "match": "Tunisia vs Netherlands", "group": "Group F", "stadium": "Kansas City Stadium", "channel": "FOX"}, {"id": 58, "date": "June 25", "time": "7:00 PM", "match": "Japan vs Sweden", "group": "Group F", "stadium": "Dallas Stadium", "channel": "FS1"}, {"id": 59, "date": "June 25", "time": "10:00 PM", "match": "USA vs Türkiye", "group": "Group D", "stadium": "Los Angeles Stadium", "channel": "FOX"}, {"id": 60, "date": "June 25", "time": "10:00 PM", "match": "Paraguay vs Australia", "group": "Group D", "stadium": "San Francisco Bay Stadium", "channel": "FS1"}, {"id": 61, "date": "June 26", "time": "3:00 PM", "match": "Norway vs France", "group": "Group I", "stadium": "Boston Stadium", "channel": "FOX"}, {"id": 62, "date": "June 26", "time": "3:00 PM", "match": "Senegal vs Iraq", "group": "Group I", "stadium": "Toronto Stadium", "channel": "FS1"}, {"id": 63, "date": "June 26", "time": "8:00 PM", "match": "Uruguay vs Spain", "group": "Group H", "stadium": "Guadalajara Stadium", "channel": "FOX"}, {"id": 64, "date": "June 26", "time": "8:00 PM", "match": "Cape Verde vs Saudi Arabia", "group": "Group H", "stadium": "Houston Stadium", "channel": "FS1"}, {"id": 65, "date": "June 26", "time": "11:00 PM", "match": "New Zealand vs Belgium", "group": "Group G", "stadium": "BC Place Vancouver", "channel": "FOX"}, {"id": 66, "date": "June 26", "time": "11:00 PM", "match": "Egypt vs Iran", "group": "Group G", "stadium": "Seattle Stadium", "channel": "FS1"}, {"id": 67, "date": "June 27", "time": "5:00 PM", "match": "Panama vs England", "group": "Group L", "stadium": "New York New Jersey Stadium", "channel": "FOX"}, {"id": 68, "date": "June 27", "time": "5:00 PM", "match": "Croatia vs Ghana", "group": "Group L", "stadium": "Philadelphia Stadium", "channel": "FS1"}, {"id": 69, "date": "June 27", "time": "7:30 PM", "match": "Colombia vs Portugal", "group": "Group K", "stadium": "Miami Stadium", "channel": "FOX"}, {"id": 70, "date": "June 27", "time": "7:30 PM", "match": "Congo DR vs Uzbekistan", "group": "Group K", "stadium": "Atlanta Stadium", "channel": "FS1"}, {"id": 71, "date": "June 27", "time": "10:00 PM", "match": "Argentina vs Jordan", "group": "Group J", "stadium": "Dallas Stadium", "channel": "FOX"}, {"id": 72, "date": "June 27", "time": "10:00 PM", "match": "Algeria vs Austria", "group": "Group J", "stadium": "Kansas City Stadium", "channel": "FS1"}];
+const WATCH_KEY = "wc2026-watch-checklist-v2-watch";
+const IMPORTANT_KEY = "wc2026-watch-checklist-v2-important";
+let watching = new Set(JSON.parse(localStorage.getItem(WATCH_KEY) || "[]"));
+let important = new Set(JSON.parse(localStorage.getItem(IMPORTANT_KEY) || "[]"));
+
+const app = document.getElementById("app");
+const search = document.getElementById("search");
+const dateFilter = document.getElementById("dateFilter");
+const groupFilter = document.getElementById("groupFilter");
+const stats = document.getElementById("stats");
+
+[...new Set(games.map(g => g.date))].forEach(d => {
+  const o = document.createElement("option"); o.value = d; o.textContent = d; dateFilter.appendChild(o);
+});
+[...new Set(games.map(g => g.group))].sort().forEach(g => {
+  const o = document.createElement("option"); o.value = g; o.textContent = g; groupFilter.appendChild(o);
+});
+
+function save() {
+  localStorage.setItem(WATCH_KEY, JSON.stringify([...watching]));
+  localStorage.setItem(IMPORTANT_KEY, JSON.stringify([...important]));
+  updateStats();
+}
+function updateStats() {
+  stats.textContent = `${watching.size} selected to watch • ${important.size} marked important • ${games.length} total matches`;
+}
+function matchesFilter(g) {
+  const q = search.value.toLowerCase().trim();
+  const text = `${g.date} ${g.time} ${g.match} ${g.group} ${g.stadium} ${g.channel}`.toLowerCase();
+  return (!q || text.includes(q)) &&
+         (!dateFilter.value || g.date === dateFilter.value) &&
+         (!groupFilter.value || g.group === groupFilter.value);
+}
+function render() {
+  app.innerHTML = "";
+  const visible = games.filter(matchesFilter);
+  const byDate = visible.reduce((acc, g) => {
+    (acc[g.date] ||= []).push(g);
+    return acc;
+  }, {});
+  for (const [date, list] of Object.entries(byDate)) {
+    const block = document.createElement("section");
+    block.className = "date-block";
+    block.innerHTML = `<h2 class="date-title">${date}</h2>`;
+    list.forEach(g => {
+      const row = document.createElement("label");
+      row.className = "game" + (watching.has(g.id) ? " watching" : "") + (important.has(g.id) ? " important" : "");
+      row.innerHTML = `
+        <div class="check-wrap"><input class="check watch-check" type="checkbox" ${watching.has(g.id) ? "checked" : ""}> Watch</div>
+        <div class="check-wrap"><input class="check important-check" type="checkbox" ${important.has(g.id) ? "checked" : ""}> Important</div>
+        <div class="time">${g.time}</div>
+        <div>
+          <div class="match">${g.match}</div>
+          <div class="meta">${g.stadium}</div>
+        </div>
+        <div class="badge">${g.group}</div>
+        <div class="badge">${g.channel}</div>
+      `;
+      const watchCb = row.querySelector(".watch-check");
+      const importantCb = row.querySelector(".important-check");
+
+      watchCb.addEventListener("change", () => {
+        if (watchCb.checked) watching.add(g.id); else watching.delete(g.id);
+        save();
+        row.classList.toggle("watching", watchCb.checked);
+      });
+
+      importantCb.addEventListener("change", () => {
+        if (importantCb.checked) important.add(g.id); else important.delete(g.id);
+        save();
+        row.classList.toggle("important", importantCb.checked);
+      });
+      block.appendChild(row);
+    });
+    app.appendChild(block);
+  }
+  if (!visible.length) app.innerHTML = "<p>No matches found.</p>";
+  updateStats();
+}
+search.addEventListener("input", render);
+dateFilter.addEventListener("change", render);
+groupFilter.addEventListener("change", render);
+document.getElementById("clearBtn").addEventListener("click", () => {
+  watching.clear(); important.clear(); save(); render();
+});
+render();
+</script>
+</body>
+</html>
