@@ -1,15 +1,12 @@
 # 2026 World Cup Watchlist
 
-Interactive 2026 FIFA World Cup group-stage checklist.
+GitHub Pages watchlist with a share-link button.
 
-## Features
-- Mark games you plan to watch
-- Mark games as important
-- Filter by date
-- Filter by group
-- Search by team, stadium, group, or channel
-- Saves checked boxes in the browser using localStorage
+## How it works
+- Check the games you plan to watch.
+- Mark important games.
+- Click **Copy Share Link**.
+- Send that link through WhatsApp.
+- Anyone who opens the link will see the same selected games.
 
-## GitHub Pages
-Upload this repo to GitHub, then enable Pages from:
-Settings → Pages → Deploy from a branch → main → /root
+No Firebase or backend required.
